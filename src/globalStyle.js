@@ -10,3 +10,7 @@ export const columnIt = css`
   display: flex;
   flex-direction: column;
 `;
+
+export const mainColor = () => {
+  return css`#990099`;
+};

@@ -147,7 +147,6 @@ color: white;
 cursor: pointer;
 `
 
-
 const TotalCont = styled.div`
 margin: 25px 0;
 height: 40px;

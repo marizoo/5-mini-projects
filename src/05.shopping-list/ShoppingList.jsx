@@ -1,6 +1,7 @@
-import React from 'react'
+import React, {useState} from 'react'
 import styled from 'styled-components';
-import { centerIt, columnIt, mainColor } from '../globalStyle';
+import { columnIt, mainColor } from '../globalStyle';
+
 
 const Wrapper = styled.div`
 color: white;
@@ -31,7 +32,7 @@ const Title = styled.h2`
 margin-top: 15px;
 `
 
-const AddItemCont = styled.div`
+const AddItemCont = styled.form`
 display: flex;
 justify-content: space-between;
 align-items: center;
@@ -96,10 +97,10 @@ display: flex;
 align-items: center;
 font-size: 16px;
 padding-left: 10px;
-
+margin-bottom: 5px;
 `
 
-const Delete = styled.button`
+const Strike = styled.button`
 flex: 10%;
 font-weight: 500;
 border: 0;
@@ -110,7 +111,14 @@ cursor: pointer;
 `
 
 const TheItems = styled.div`
-flex: 70%
+flex: 70%;
+font-weight: 500;
+`
+const TheItemsStrike = styled.div`
+flex: 70%;
+font-weight: 300;
+text-decoration: line-through;
+opacity: .5;
 `
 
 const QuantityCont = styled.div`
@@ -131,10 +139,6 @@ color: white;
 cursor: pointer;
 `
 const Increase = styled.button`
-/* border: 1px solid white;
-border-radius: 50%;
-width: 30px;
-height: 30px; */
 font-weight: 500;
 background: none;
 border: 0;
@@ -160,43 +164,122 @@ span {
 }
 `
 
+// const DUMMY_DATAS = [
+//     {itemName: 'bawang bombay', quantity: 3, isSelected: true, id: '01'},
+//     {itemName: 'rinso pink', quantity: 1, isSelected: false, id: '02'},
+// ]
+
 
 const ShoppingList = () => {
+    const [itemData, setItemData] = useState([]);
+    const [newInput, setNewInput] = useState('');
+    const [totalQuantity, setTotalQuantity] = useState(0);
+
+    const submitData = (ev) => {
+        ev.preventDefault()
+
+        const newItem = {
+            itemName: newInput,
+            quantity: 1,
+            isSelected: false,
+            id: Math.floor(Math.random() * 10000)
+        }
+
+        const newItems = [...itemData, newItem];
+        setItemData(newItems);
+
+        setNewInput('')
+        const quantityStart = totalQuantity + 1;
+        setTotalQuantity(quantityStart);
+    }
+
+    const handleQuantityDecrease = (index) => {
+        const itemQuantity = 
+        itemData[index].quantity --;
+        setTotalQuantity(itemQuantity);
+        handleTotalQuantity();
+
+    }
+
+    const handleQuantityIncrease = (index) => {
+        const itemQuantity = itemData[index].quantity ++;
+        setTotalQuantity(itemQuantity);
+        handleTotalQuantity();
+    }
+
+    const handleTotalQuantity = () => {
+        const addAllTotal = 
+        itemData.reduce((total, item) => {
+            return total + item.quantity; 
+        },0)
+        setTotalQuantity(addAllTotal)
+    }
+
+   const toggleStrike = (index) => {
+       const newItems = [...itemData];
+
+       newItems[index].isSelected = !newItems[index].isSelected;
+       setItemData(newItems);
+   }
+
+    // const handleDelete = (clickedId) => {
+    //     setItemData(itemData.filter(item => item.id !== clickedId))
+    //     const quantityCount = totalQuantity - itemData.id.quantity;
+    //     setTotalQuantity(quantityCount);
+    // }
+   
     return (
         <Wrapper>
             <Card>
                 <Top>
                     <Title>Shopping List</Title>
-                    <AddItemCont>
+                    <AddItemCont onSubmit={submitData}>
+                        
                         <InputItem 
                         name='inputItem' 
                         type='text'
                         placeholder='Add Items'
+                        required
+                        value={newInput}
+                        onChange={(ev) => setNewInput(ev.target.value)}
                         />
-                        <InputButton>+</InputButton>
+                        <InputButton type='submit'>+</InputButton>
+                        
                     </AddItemCont>
                 </Top>
                 <Bottom>
                     <BottomTitle>Your List Items</BottomTitle>
                     <ItemCont>
                         <UL>
-                            <LI>
-                                <Delete>x</Delete>
-                                <TheItems>
-                                Sayur bayam
-                                Sayur bayam
-                                </TheItems>
-                                
-                                <QuantityCont>
-                                    <Decrease>-</Decrease>
-                                    <Quantity>2</Quantity>
-                                    <Increase>+</Increase>
-                                </QuantityCont>
-                            </LI>
+                            {itemData.map((item, index) => (
+                                <LI key={item.id}>
+                                    <Strike onClick={()=>toggleStrike(index)}>
+                                        x
+                                    </Strike>
+                                    {!item.isSelected &&
+                                        <TheItems>
+                                        {item.itemName}
+                                        </TheItems>
+                                    }
+                                    {item.isSelected &&
+                                        <TheItemsStrike>
+                                            {item.itemName}
+                                        </TheItemsStrike>
+                                    }
+                                    
+
+                                    <QuantityCont>
+                                        <Decrease onClick={()=> handleQuantityDecrease(index)}>-</Decrease>
+                                        <Quantity>{item.quantity}</Quantity>
+                                        <Increase onClick={()=> handleQuantityIncrease(index)}>+</Increase>
+                                    </QuantityCont>
+                                </LI>                                
+                            ))}
+                           
                         </UL>
                     </ItemCont>
                     <TotalCont>
-                        <TotalValue>Total : <span>6</span></TotalValue>
+                        <TotalValue>Total : <span>{totalQuantity}</span></TotalValue>
                     </TotalCont>
                 </Bottom>
             </Card>
